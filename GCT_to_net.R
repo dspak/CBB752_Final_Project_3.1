@@ -33,7 +33,7 @@ input <- read.csv(file = args[1], header = T, sep = "\t", strip.white = T, quote
 
 # To run interactively, uncomment the following two lines
 setwd("~/Box Sync/coursework/CBB752_BioinformaticsMiningSimulation/final/CBB752_Final_Project_3.1/")
-input <- read.table(file = "all_aml_train.gct", header = T, sep = "\t", strip.white = T, quote = "\"", stringsAsFactors = F)
+input <- read.table(file = "all_aml_train.preprocessed.gct", header = T, sep = "\t", strip.white = T, quote = "\"", stringsAsFactors = F)
 
 # Load the required packages
 
@@ -42,27 +42,28 @@ input <- read.table(file = "all_aml_train.gct", header = T, sep = "\t", strip.wh
 # ~~ STEP 1) Apply low and high thresholds and remove values that never change
 # ~~~~~~~~~~~~~
 # This requires first cleaning the data. As done using GenePattern earlier in this assignment, values <20 will be set to 20, values > 20000 will be set to 20000, and values that change by less than 3 fold between any sample will be removed.
-
-# set values lower than 20 to 20
-LowThreshold <- function(x) { x[x<20] <- 20; x }
-df.low <- as.data.frame(LowThreshold(input))
-
-#set values higher than 20000 to 20000
-HighThreshold <- function(x) { x[x>20000] <- 20000; x }
-df.low.high <- as.data.frame(HighThreshold(df.low[3:40]))
-
-# Remove rows that vary by less than 3 fold in any sample
-df.low.high$folddiff <- apply(df.low.high, 1, FUN = function(x) {max(x)/min(x)})
-df.desc <- cbind(df.low$Name, df.low$Description, df.low.high)
-df.clean <- df.desc[df.low.high$folddiff > 3,]
-df.clean$folddiff <- NULL
+# 
+# # set values lower than 20 to 20
+# LowThreshold <- function(x) { x[x<20] <- 20; x }
+# df.low <- as.data.frame(LowThreshold(input))
+# 
+# #set values higher than 20000 to 20000
+# HighThreshold <- function(x) { x[x>20000] <- 20000; x }
+# df.low.high <- as.data.frame(HighThreshold(df.low[3:40]))
+# 
+# # Remove rows that vary by less than 3 fold in any sample
+# df.low.high$folddiff <- apply(df.low.high, 1, FUN = function(x) {max(x)/min(x)})
+# df.desc <- cbind(df.low$Name, df.low$Description, df.low.high)
+# df.clean <- df.desc[df.low.high$folddiff > 3,]
+# df.clean$folddiff <- NULL
 
 
 # ~~~~~~~~~~~~~
 # ~~ STEP 2) Find co-expressed genes by Pearson correlation
 # ~~~~~~~~~~~~~
 
-p.cor <- cor(df.clean[,3:ncol(df.clean)], method = "pearson")
-
+p.cor <- cor(t(input[,3:ncol(input)]), method = "pearson")
+nrow(p.cor)
+ncol(p.cor)
 
 
