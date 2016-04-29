@@ -10,8 +10,8 @@
 #
 # Created.date  : 27 Apr 2016
 # Created.by    : Dan Spakowicz
-# Updated.date  :  
-# Updated.by    : 
+# Updated.date  : 29 Apr 2016 
+# Updated.by    : DS
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Usage:      Rscript GCT_to_net.R --input /path/to/inputfile.gct --pvalue 0.05 -output /path/to/outputfile.csv
@@ -24,8 +24,10 @@
 #             example.gct: constructed from all_aml_train.gct, remove 2 header lines, keep first 10 genes
 
 # Load the required packages
-if(!require(optparse)){install.packages("optparse")}
-if(!require(Hmisc)){install.packages("Hmisc")}
+if(!require(optparse)){install.packages("optparse", 
+                                        repos = "http://cran.us.r-project.org")}
+if(!require(Hmisc)){install.packages("Hmisc", 
+                                     repos = "http://cran.us.r-project.org")}
 
 # set arguments
 option_list = list(
