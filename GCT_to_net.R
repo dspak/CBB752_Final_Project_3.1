@@ -23,21 +23,39 @@
 #
 #             example.gct: constructed from all_aml_train.gct, remove 2 header lines, keep first 10 genes
 
+# Load the required packages
+#install.packages("argparser")
+library(argparser)
+library(reshape2)
+library(Hmisc)
+
 
 # Set to run as Rscript GCT_to_net.R /path/to/inputfile.gct
 # To run interactively, use the setwd and input files below
 args = commandArgs(trailingOnly=TRUE)
+argv <- parse_args(p)
+
+
+# specify our desired options
+# by default ArgumentParser will add an help option
+i <- add_argument(i, "--input", default=TRUE,
+                    help='input file, tab delimited in a .txt file, MI TAB 2.5 format')
+parser$add_argument("-p", "--pvalue", action="store_false", default=TRUE,
+                    dest="verbose", help='input pvalue between 0 and 1')
+parser$add_argument("-o", "--output", action="store_false",
+                    dest="verbose", help='output filename')
 
 input <- read.csv(file = args[1], header = T, sep = "\t", strip.white = T, quote = "\"", stringsAsFactors = F)
 
 
 # To run interactively, uncomment the following two lines
 setwd("~/Box Sync/coursework/CBB752_BioinformaticsMiningSimulation/final/CBB752_Final_Project_3.1/")
-input <- read.table(file = "all_aml_train.preprocessed.gct", header = T, sep = "\t", strip.white = T, quote = "\"", stringsAsFactors = F)
-
-# Load the required packages
+input <- read.table(file = "all_aml_train.preprocessed.gct", header = T, sep = "\t", strip.white = T, quote = "\"", stringsAsFactors = F, row.names = 1)
 
 
+
+
+### Excluded from final product, include if using raw (not preprocessed) data
 # ~~~~~~~~~~~~~
 # ~~ STEP 1) Apply low and high thresholds and remove values that never change
 # ~~~~~~~~~~~~~
@@ -62,8 +80,66 @@ input <- read.table(file = "all_aml_train.preprocessed.gct", header = T, sep = "
 # ~~ STEP 2) Find co-expressed genes by Pearson correlation
 # ~~~~~~~~~~~~~
 
-p.cor <- cor(t(input[,3:ncol(input)]), method = "pearson")
-nrow(p.cor)
-ncol(p.cor)
+r <- cor(t(input[,3:ncol(input)]), method = "pearson")
+#n <- nrow(p.cor)
+n <- ncol(p.cor)
+
+# http://stats.stackexchange.com/questions/153937/finding-p-value-in-pearson-correlation-in-r
+
+r <- rcorr(t(input[,3:ncol(input)]), type = "pearson")
+
+flattenCorrMatrix <- function(cormat, pmat) {
+  ut <- upper.tri(cormat)
+  data.frame(
+    row = rownames(cormat)[row(cormat)[ut]],
+    column = rownames(cormat)[col(cormat)[ut]],
+    cor  =(cormat)[ut],
+    p = pmat[ut]
+  )
+}
+df <- flattenCorrMatrix(r$r, r$P)
+df$bonferroni <- p.adjust(df$p, method = "bonferroni")
+df$t.statistic <- df$cor / (sqrt( (1-(df$cor^2)/(ncol(input)-4) )))
+
+output <- subset(df, bonferroni <= 0.05)
+output2 <- data.frame(output$row, output$column, output$cor, output$t.statistic, output$p, output$bonferroni)
+colnames(output2) <- c("InteractorA", "InteractorB", "Correlation","t-statistic", "p-value", "Bonferroni-adjusted p-value")
+write.csv(output2, "output_coexpressed_R.csv", row.names = F, quote = F, col.names = T)
 
 
+
+
+
+
+
+
+
+
+# 
+# names(r$r)
+#   tstat = r * sqrt((n-2)/(1-r*r))
+#   pval = pt(abs(tstat), df = n-2, lower = FALSE)*2
+#   head(input)
+#   colnames(pval) <- input$Description
+# mtcars
+#   pval2 <- data.frame(input$Description, pval)
+#   melt <- melt(pval2)
+#   head(melt)
+#   
+#   melt$adjusted <- p.adjust(melt$value, method = "bonferroni")
+#   hist(melt$adjusted)
+#   
+#   table(melt$adjusted < 0.05)['TRUE'] / table(melt$adjusted < 0.05)['FALSE']
+#   
+# head (pval)
+# head(FWER)
+# hist(out)
+# 
+# # calculate t-stat, n-2 degrees of freedom
+#   tstat = r*numpy.sqrt((n-2)/(1-r*r))
+# 
+# # find p-value for the double-sided test. Students t, n-2 degrees of freedom
+# pval = stats.t.sf(numpy.abs(tstat), n-2)*2
+# 
+# 
+# 
