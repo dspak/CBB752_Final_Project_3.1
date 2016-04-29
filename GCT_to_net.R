@@ -26,8 +26,7 @@
 # Load the required packages
 #install.packages("argparser")
 library(argparser)
-library(reshape2)
-library(Hmisc)
+if(!require(Hmisc)){install.packages("Hmisc")}
 
 
 # Set to run as Rscript GCT_to_net.R /path/to/inputfile.gct
@@ -80,9 +79,9 @@ input <- read.table(file = "all_aml_train.preprocessed.gct", header = T, sep = "
 # ~~ STEP 2) Find co-expressed genes by Pearson correlation
 # ~~~~~~~~~~~~~
 
-r <- cor(t(input[,3:ncol(input)]), method = "pearson")
-#n <- nrow(p.cor)
-n <- ncol(p.cor)
+
+
+n <- ncol(input)-2
 
 # http://stats.stackexchange.com/questions/153937/finding-p-value-in-pearson-correlation-in-r
 
