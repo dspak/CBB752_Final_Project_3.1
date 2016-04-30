@@ -24,10 +24,13 @@
 #             example.gct: constructed from all_aml_train.gct, remove 2 header lines, keep first 10 genes
 
 # Load the required packages
+
 if(!require(optparse)){install.packages("optparse", 
                                         repos = "http://cran.us.r-project.org")}
+require(optparse)
 if(!require(Hmisc)){install.packages("Hmisc", 
                                      repos = "http://cran.us.r-project.org")}
+require(Hmisc)
 
 # set arguments
 option_list = list(
@@ -51,14 +54,23 @@ opt = parse_args(opt_parser);
 # ~~ Find co-expressed genes by Pearson correlation, output table
 # ~~~~~~~~~~~~~
 
-PearsonCorrelationTable <- function(infile, pvalue, outfile){
+flattenCorrMatrix <- function(cormat, pmat) {
+  ut <- upper.tri(cormat)
+  data.frame (
+    row = rownames(cormat)[row(cormat)[ut]],
+    column = rownames(cormat)[col(cormat)[ut]],
+    cor  = cormat[ut],
+    p = pmat[ut])
+}
+
+PearsonCorrelationTable <- function(infile, pvalue, outfile) {
   
   # read in data matrix
   infile <- read.csv(file = opt$input, header = T, sep = "\t", 
                      strip.white = T, quote = "\"", stringsAsFactors = F)
   
   # pearson correlation excluding name columns using Hmisc
-  r <- rcorr(t(infile[,3:ncol(input)]), type = "pearson")
+  r <- rcorr(t(infile[,3:ncol(infile)]), type = "pearson")
   
   # reformat matrix to two columns of interactions with values
   df <- flattenCorrMatrix(r$r, r$P)
@@ -85,15 +97,7 @@ PearsonCorrelationTable <- function(infile, pvalue, outfile){
 }
 
 # function to reformat matrix to two columns of interactions with values
-flattenCorrMatrix <- function(cormat, pmat) {
-  ut <- upper.tri(cormat)
-  data.frame(
-    row = rownames(cormat)[row(cormat)[ut]],
-    column = rownames(cormat)[col(cormat)[ut]],
-    cor  =(cormat)[ut],
-    p = pmat[ut]
-  )
-}
+
 
 
 PearsonCorrelationTable(opt$input, opt$pvalue, opt$out)
