@@ -10,7 +10,7 @@
 #
 # Created.date  : 27 Apr 2016
 # Created.by    : Dan Spakowicz
-# Updated.date  : 29 Apr 2016 
+# Updated.date  : 01 May 2016 
 # Updated.by    : DS
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -54,20 +54,12 @@ opt = parse_args(opt_parser);
 # ~~ Find co-expressed genes by Pearson correlation, output table
 # ~~~~~~~~~~~~~
 
-flattenCorrMatrix <- function(cormat, pmat) {
-  ut <- upper.tri(cormat)
-  data.frame (
-    row = rownames(cormat)[row(cormat)[ut]],
-    column = rownames(cormat)[col(cormat)[ut]],
-    cor  = cormat[ut],
-    p = pmat[ut])
-}
-
+# function to calculate the correlations, p-values and make bonferroni corrections
 PearsonCorrelationTable <- function(infile, pvalue, outfile) {
   
   # read in data matrix
   infile <- read.csv(file = opt$input, header = T, sep = "\t", 
-                     strip.white = T, quote = "\"", stringsAsFactors = F)
+                     strip.white = T, quote = "\"", stringsAsFactors = F, row.names = 1)
   
   # pearson correlation excluding name columns using Hmisc
   r <- rcorr(t(infile[,3:ncol(infile)]), type = "pearson")
@@ -86,27 +78,29 @@ PearsonCorrelationTable <- function(infile, pvalue, outfile) {
   
   # reformat output
   output <- data.frame(significants$row, significants$column, significants$cor, 
-                        significants$t.statistic, significants$p, 
-                        significants$bonferroni)
+                        significants$t.statistic, significants$bonferroni)
   colnames(output) <- c("InteractorA", "InteractorB", "Correlation",
-                        "t-statistic", "p-value", "Bonferroni-adjusted p-value")
+                        "t-statistic", "Bonferroni-adjusted p-value")
   
   # write to file
   write.csv(output, outfile, 
-            row.names = F, quote = F, col.names = T)
+            row.names = F, quote = F)
 }
 
-# function to reformat matrix to two columns of interactions with values
+# function to reformat the rcorr output matrix to two columns of interactions with values
 
-
+flattenCorrMatrix <- function(cormat, pmat) {
+  ut <- upper.tri(cormat)
+  data.frame(
+    row = rownames(cormat)[row(cormat)[ut]],
+    column = rownames(cormat)[col(cormat)[ut]],
+    cor  = t(cormat)[ut],
+    p = pmat[ut]
+  )
+}
 
 PearsonCorrelationTable(opt$input, opt$pvalue, opt$out)
 
-
-
-
-
-# http://stats.stackexchange.com/questions/153937/finding-p-value-in-pearson-correlation-in-r
 
 #Excluded from final version, include if using unpreprocessed data
 # ~~~~~~~~~~~~~ 
@@ -128,31 +122,3 @@ PearsonCorrelationTable(opt$input, opt$pvalue, opt$out)
 # df.clean <- df.desc[df.low.high$folddiff > 3,]
 # df.clean$folddiff <- NULL
 
-
-
-
-# 
-# names(r$r)
-#   tstat = r * sqrt((n-2)/(1-r*r))
-#   pval = pt(abs(tstat), df = n-2, lower = FALSE)*2
-#   head(input)
-#   colnames(pval) <- input$Description
-# mtcars
-#   pval2 <- data.frame(input$Description, pval)
-#   melt <- melt(pval2)
-#   head(melt)
-#   
-#   melt$adjusted <- p.adjust(melt$value, method = "bonferroni")
-#   hist(melt$adjusted)
-#   
-#   table(melt$adjusted < 0.05)['TRUE'] / table(melt$adjusted < 0.05)['FALSE']
-#   
-# head (pval)
-# head(FWER)
-# hist(out)
-# 
-# # calculate t-stat, n-2 degrees of freedom
-#   tstat = r*numpy.sqrt((n-2)/(1-r*r))
-# 
-# # find p-value for the double-sided test. Students t, n-2 degrees of freedom
-# pval = stats.t.sf(numpy.abs(tstat), n-2)*2
