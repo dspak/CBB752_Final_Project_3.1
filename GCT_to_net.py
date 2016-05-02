@@ -32,9 +32,9 @@ args = parser.parse_args()
 
 # This function returns the Pearson correlation coefficient between two lists A and B
 def pcorr(A, B):
-    # convert to int arrays
-    A = map(int, A)
-    B = map(int, B)
+    # convert to float arrays
+    A = map(float, A)
+    B = map(float, B)
     # convert to numpy arrays
     numA = numpy.asarray(A)
     numB = numpy.asarray(B)
