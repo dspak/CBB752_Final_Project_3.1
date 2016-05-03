@@ -15,6 +15,7 @@ __email__ = "edward.kong@yale.edu"
 #             One row per gene
 #             Output: a csv. of pairwise gene interactions, Pearson R values, and p-values, comma-delimited
 #
+#
 #             example.gct: constructed from all_aml_train.gct, remove 2 header lines, keep first 100 genes
 
 import argparse
@@ -32,9 +33,9 @@ args = parser.parse_args()
 
 # This function returns the Pearson correlation coefficient between two lists A and B
 def pcorr(A, B):
-    # convert to int arrays
-    A = map(int, A)
-    B = map(int, B)
+    # convert to float arrays
+    A = map(float, A)
+    B = map(float, B)
     # convert to numpy arrays
     numA = numpy.asarray(A)
     numB = numpy.asarray(B)
