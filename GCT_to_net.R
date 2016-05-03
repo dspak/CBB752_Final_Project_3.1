@@ -1,12 +1,12 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Title :  GCT_to_net.R 
-# Version : 1.0
+# Version : 1.1
 #
 # Purpose : A tool that calculates co-expressed gene network from GCT file
 #           of gene expressions. Uses a Pearson correlation and then a t-test
 #           to prioritize the correlations
 #  
-# Version Notes : 
+# Version Notes : fixed bug that removed one col from the analysis
 #
 # Created.date  : 27 Apr 2016
 # Created.by    : Dan Spakowicz
@@ -62,7 +62,7 @@ PearsonCorrelationTable <- function(infile, pvalue, outfile) {
                      strip.white = T, quote = "\"", stringsAsFactors = F, row.names = 1)
   
   # pearson correlation excluding name columns using Hmisc
-  r <- rcorr(t(infile[,3:ncol(infile)]), type = "pearson")
+  r <- rcorr(t(infile[,2:ncol(infile)]), type = "pearson")
   
   # reformat matrix to two columns of interactions with values
   df <- flattenCorrMatrix(r$r, r$P)
