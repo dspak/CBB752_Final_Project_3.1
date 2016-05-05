@@ -23,14 +23,15 @@
 #
 #             example.gct: constructed from all_aml_train.gct, remove 2 header lines, keep first 10 genes
 
-# Load the required packages
+rm(list=ls())
 
-if(!require(optparse)){install.packages("optparse", 
-                                        repos = "http://cran.us.r-project.org")}
-require(optparse)
-if(!require(Hmisc)){install.packages("Hmisc", 
-                                     repos = "http://cran.us.r-project.org")}
-require(Hmisc)
+# Load the required packages
+list.of.packages <- c("optparse", "Hmisc")
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages)
+library(optparse)
+library(Hmisc)
+
 
 # set arguments
 option_list = list(
@@ -71,16 +72,17 @@ PearsonCorrelationTable <- function(infile, pvalue, outfile) {
   df$bonferroni <- p.adjust(df$p, method = "bonferroni")
   
   # calculate the t-statistic to include in the final output
-  df$t.statistic <- df$cor / (sqrt( (1-(df$cor^2)/(ncol(infile)-4) )))
+  df$t.statistic <- df$cor / (sqrt( (1-(df$cor^2)/(ncol(r$r)-2) )))
   
   # subset the result to only significant correlations
   significants <- subset(df, bonferroni <= pvalue)
   
   # reformat output
   output <- data.frame(significants$row, significants$column, significants$cor, 
-                        significants$t.statistic, significants$bonferroni)
+                      significants$p, significants$bonferroni)
   colnames(output) <- c("InteractorA", "InteractorB", "Correlation",
-                        "t-statistic", "Bonferroni-adjusted p-value")
+                        "p-value", "Bonferroni-adjusted p-value")
+  output <- output[order(output$`p-value`),]
   
   # write to file
   write.csv(output, outfile, 
@@ -99,8 +101,16 @@ flattenCorrMatrix <- function(cormat, pmat) {
   )
 }
 
+
+# Run the function given the user inputs 
+
 PearsonCorrelationTable(opt$input, opt$pvalue, opt$out)
 
+
+# debugging interactively
+# opt$input <- "~/Box Sync/coursework/CBB752_BioinformaticsMiningSimulation/final/CBB752_Final_Project_3.1/example.gct"
+# opt$pvalue <- 0.05
+# opt$out <- "~/Box Sync/coursework/CBB752_BioinformaticsMiningSimulation/final/CBB752_Final_Project_3.1/example_out_R.csv"
 
 #Excluded from final version, include if using unpreprocessed data
 # ~~~~~~~~~~~~~ 
