@@ -23,7 +23,12 @@
 #
 #             example.gct: constructed from all_aml_train.gct, remove 2 header lines, keep first 10 genes
 
+# remove any previously loaded functions
 rm(list=ls())
+
+# suppress warnings
+oldw <- getOption("warn")
+options(warn = -1)
 
 # Load the required packages
 list.of.packages <- c("optparse", "Hmisc")
@@ -37,7 +42,7 @@ library(Hmisc)
 option_list = list(
   make_option(c("-i", "--input"), type="character", default=NULL, 
               help="dataset file name", metavar="character"),
-  make_option(c("-p", "--pvalue"), type="character", default=0.05, 
+  make_option(c("-p", "--pvalue"), type="numeric", default=0.05, 
               help="input pvalue between 0 and 1", metavar="character"),
   make_option(c("-o", "--out"), type="character", 
               default="output_coexpressed_R.csv", 
@@ -106,12 +111,6 @@ flattenCorrMatrix <- function(cormat, pmat) {
 
 PearsonCorrelationTable(opt$input, opt$pvalue, opt$out)
 
-
-# debugging interactively
-# opt$input <- "~/Box Sync/coursework/CBB752_BioinformaticsMiningSimulation/final/CBB752_Final_Project_3.1/example.gct"
-# opt$pvalue <- 0.05
-# opt$out <- "~/Box Sync/coursework/CBB752_BioinformaticsMiningSimulation/final/CBB752_Final_Project_3.1/example_out_R.csv"
-
 #Excluded from final version, include if using unpreprocessed data
 # ~~~~~~~~~~~~~ 
 # ~~ Apply low and high thresholds and remove values that never change
@@ -132,3 +131,5 @@ PearsonCorrelationTable(opt$input, opt$pvalue, opt$out)
 # df.clean <- df.desc[df.low.high$folddiff > 3,]
 # df.clean$folddiff <- NULL
 
+# return warning setting
+options(warn = oldw)
