@@ -10,7 +10,7 @@
 #
 # Created.date  : 27 Apr 2016
 # Created.by    : Dan Spakowicz
-# Updated.date  : 01 May 2016 
+# Updated.date  : 05 May 2016 
 # Updated.by    : DS
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -19,9 +19,9 @@
 # Note:       Input: GCT file, which is a text file with 1st row = column titles
 #             Columns: Name, Description, Experiment1, Experiment 2, exp3, exp4 ...
 #             One row per gene
-#             Output: a csv. of pairwise gene interactions, Pearson R values, and p-values, comma-delimited
+#             Output: a csv. of pairwise gene interactions, Pearson R values, p-values and Bonferroni-adjusted p-values, comma-delimited
 #
-#             example.gct: constructed from all_aml_train.gct, remove 2 header lines, keep first 10 genes
+#             example.gct: constructed from all_aml_train.gct, remove 2 header lines, keep first 100 genes
 
 # remove any previously loaded functions
 rm(list=ls())
