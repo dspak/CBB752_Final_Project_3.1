@@ -9,9 +9,8 @@ Note: This tool is part of a set of bioinformatic and biological structure tools
 ***
 
 
-### Usage notes: 
+### Usage:
 
-Usage:      
 
 ```
 Rscript GCT_to_net.R -i (input .txt file in GCT format) -p (p value in [0,1]) -o (output .csv file name)
